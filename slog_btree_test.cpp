@@ -5,11 +5,11 @@
 #include <mpi.h>
 #include "/Users/shivamkumar/project/slog-lang1/backend/src/btree/btree_set.h"
 
-// Alias for B-tree
+
 template <typename T>
 using SlogBTree = btree::btree_set<T>;
 
-// Generate a random tuple
+
 template <size_t N>
 std::array<int, N> generateRandomTuple(int minVal = 0, int maxVal = 1000) {
     std::array<int, N> tuple{};
@@ -19,7 +19,7 @@ std::array<int, N> generateRandomTuple(int minVal = 0, int maxVal = 1000) {
     return tuple;
 }
 
-// Print a tuple
+
 template <size_t N>
 void printTuple(const std::array<int, N>& tuple) {
     std::cout << "{";
@@ -30,7 +30,7 @@ void printTuple(const std::array<int, N>& tuple) {
     std::cout << "}";
 }
 
-// Measure time and execute a function
+
 template <typename Func>
 auto measureTime(Func func) {
     auto start = std::chrono::high_resolution_clock::now();
@@ -39,7 +39,7 @@ auto measureTime(Func func) {
     return std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 }
 
-// Test B-tree performance with MPI
+
 template <size_t N>
 void testBTreePerformanceMPI(size_t numInsertions = 10000, size_t numSearches = 5) {
     using Tuple = std::array<int, N>;
@@ -52,7 +52,7 @@ void testBTreePerformanceMPI(size_t numInsertions = 10000, size_t numSearches = 
     size_t localInsertions = numInsertions / size; // Divide workload
     size_t localSearches = numSearches / size;
 
-    // Insert elements and measure time
+   
     auto insertionTime = measureTime([&]() {
         for (size_t i = 0; i < localInsertions; ++i) {
             auto tuple = generateRandomTuple<N>();
@@ -60,7 +60,7 @@ void testBTreePerformanceMPI(size_t numInsertions = 10000, size_t numSearches = 
         }
     });
 
-    // Gather insertion times from all processes
+    
     long globalInsertionTime;
     MPI_Reduce(&insertionTime, &globalInsertionTime, 1, MPI_LONG, MPI_SUM, 0, MPI_COMM_WORLD);
 
@@ -68,7 +68,7 @@ void testBTreePerformanceMPI(size_t numInsertions = 10000, size_t numSearches = 
         std::cout << "Total Insertion Time: " << globalInsertionTime / size << " microseconds\n";
     }
 
-    // Perform searches and measure time
+    
     auto searchTime = measureTime([&]() {
         for (size_t i = 0; i < localSearches; ++i) {
             auto target = generateRandomTuple<N>();
@@ -80,7 +80,7 @@ void testBTreePerformanceMPI(size_t numInsertions = 10000, size_t numSearches = 
         }
     });
 
-    // Gather search times from all processes
+  
     long globalSearchTime;
     MPI_Reduce(&searchTime, &globalSearchTime, 1, MPI_LONG, MPI_SUM, 0, MPI_COMM_WORLD);
 
@@ -92,15 +92,15 @@ void testBTreePerformanceMPI(size_t numInsertions = 10000, size_t numSearches = 
 int main(int argc, char** argv) {
     MPI_Init(&argc, &argv);
 
-    constexpr size_t arity = 4;          // Tuple arity
-    constexpr size_t numInsertions = 10000000; // Adjust as needed
-    constexpr size_t numSearches = 10;       // Adjust as needed
+    constexpr size_t arity = 4;          
+    constexpr size_t numInsertions = 10000000;
+    constexpr size_t numSearches = 10;       
 
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
     if (rank == 0) {
-        std::cout << "Testing B-tree with tuple arity = " << arity << " using MPI\n";
+        std::cout << "Testing B-tree with tuple arity = " << arity << " SLOG\n";
     }
 
     testBTreePerformanceMPI<arity>(numInsertions, numSearches);
